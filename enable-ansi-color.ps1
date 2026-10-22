@@ -1,20 +1,7 @@
-param(
-    [Parameter(Mandatory=$true, Position=0)]
-    [string]$TargetExe,
-    
-    [Parameter(ValueFromRemainingArguments=$true)]
-    [string[]]$TargetArgs
-)
+$CmdText = [Environment]::GetEnvironmentVariable("CMD_TEXT", "Process")
 
-# Resolve the executable path to bypass PowerShell's variable lookup quirk
-$ResolvedPath = Resolve-Path -ErrorAction SilentlyContinue $TargetExe
-if ($ResolvedPath) {
-    $TargetExe = $ResolvedPath.Path
-}
+cmd.exe /c `"`"$CmdText`"`" | Write-Host
 
-# Execute the target program and redirect to Write-Host
-if ($TargetArgs.Count -gt 0) {
-    & $TargetExe @TargetArgs | Write-Host
-} else {
-    & $TargetExe | Write-Host
-}
+$ExitCode = if ($null -ne $LASTEXITCODE) { $LASTEXITCODE } else { 0 }
+
+exit $ExitCode
